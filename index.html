@@ -287,8 +287,9 @@ window.dataLayer=window.dataLayer||[];
 function track(ev,props){try{window.dataLayer.push(Object.assign({event:ev},props||{}))}catch(e){}}
 document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href*="maua.br"]');if(!a)return;let u;try{u=new URL(a.href)}catch(x){return}
  track('cta_click',{destino:u.hostname+u.pathname,local:u.searchParams.get('utm_content')||''})});
-const _sv=setView;setView=function(v){track('view_changed',{visao:v});return _sv(v)};
-const _ss=selectStand;selectStand=function(n){track('stand_selected',{estande:n,visao:view});return _ss(n)};
+let _ui=false;['pointerdown','keydown'].forEach(t=>document.addEventListener(t,()=>{_ui=true},{once:true,capture:true}));
+const _sv=setView;setView=function(v){if(_ui)track('view_changed',{visao:v});return _sv(v)};
+const _ss=selectStand;selectStand=function(n){if(_ui)track('stand_selected',{estande:n,visao:view});return _ss(n)};
 let _qt;document.getElementById('q').addEventListener('input',()=>{clearTimeout(_qt);_qt=setTimeout(()=>{if(qs)track('search_used',{tamanho_termo:qs.length,resultados:D.filter(match).length})},900)});
 // ---- tema (Auto segue o sistema; Claro/Escuro forçam) ----
 const rootEl=document.documentElement;
