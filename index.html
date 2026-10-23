@@ -84,8 +84,8 @@ svg{display:block}
 .empty{padding:22px;color:var(--muted)}
 .note{color:var(--muted);font-size:12.5px;padding:2px 4px 0}
 .ctrl{display:flex;gap:8px;flex-wrap:wrap}
-.seg{display:inline-flex;background:color-mix(in srgb,var(--ink) 9%,transparent);border-radius:999px;padding:3px}
-.seg button{font:inherit;font-size:13px;border:0;background:none;color:var(--ink);padding:6px 13px;border-radius:999px;cursor:pointer}
+.seg{display:inline-flex;flex-wrap:wrap;max-width:100%;border-radius:20px;background:color-mix(in srgb,var(--ink) 9%,transparent);border-radius:999px;padding:3px}
+.seg button{white-space:nowrap;font:inherit;font-size:13px;border:0;background:none;color:var(--ink);padding:6px 13px;border-radius:999px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--panel);box-shadow:0 1px 3px rgba(0,0,0,.22);font-weight:600}
 .seg button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
 .wrap.vc header .tt{display:none}
@@ -137,6 +137,7 @@ svg{display:block}
 .seg button{min-height:38px}
 .zoom button{width:44px;height:44px}
 .o{font-size:13px}
+@media (max-width:700px){.ctrl{width:100%}.ctrl .seg{width:100%}.seg button{flex:1 1 auto;text-align:center;padding:8px 10px}.scroller{max-height:68vh}}
 .tbl{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px}
 .tbl table{border-collapse:collapse;width:100%;min-width:640px;font-size:15px}
 .tbl caption{text-align:left;padding:14px;font-weight:600}
@@ -162,14 +163,14 @@ svg{display:block}
   <div class="stat" id="stat" role="status" aria-live="polite"></div>
  </header>
  <div class="tools">
-  <div class="search"><input id="q" type="search" placeholder="Buscar: CICD07, daltônicos, Tressino, estande 55…" autocomplete="off" aria-label="Buscar grupo"></div>
+  <div class="search"><input id="q" type="search" placeholder="Buscar: CICD07, daltônicos, orientador, estande 55" autocomplete="off" aria-label="Buscar grupo"></div>
   <div class="chips" id="chips" role="group" aria-label="Filtrar por curso"></div>
  </div>
  <div class="grid" id="vMapa">
   <section class="card mapcard" aria-label="Mapa do pavilhão">
-   <div class="maptop"><span>Toque num estande para ver o grupo. Estandes compartilhados mostram um selo com a quantidade de grupos.</span>
+   <div class="maptop"><span>Toque num estande para ver o grupo e arraste o mapa para os lados. Um selo indica estandes compartilhados.</span>
     <div class="zoom"><button id="zo" aria-label="Diminuir mapa">−</button><button id="zi" aria-label="Ampliar mapa">+</button></div></div>
-   <div class="scroller" id="scr"><svg id="svg" viewBox="0 0 2000 1126" role="img" aria-label="Planta do pavilhão com os estandes numerados"></svg></div>
+   <div class="scroller" id="scr"><svg id="svg" viewBox="40 80 1930 1040" role="img" aria-label="Planta do pavilhão com os estandes numerados"></svg></div>
    <p class="note">Posições dos estandes lidas da planta; o número do estande e o grupo vêm do sistema Eureka.</p>
   </section>
   <aside class="side">
@@ -273,7 +274,7 @@ function showGroups(gs,n){
 function selectStand(n){
  if(sel&&nodes[sel])nodes[sel].classList.remove('sel');sel=n;
  const nd=nodes[n];if(nd){nd.classList.add('sel');nd.parentNode.appendChild(nd);
-  const s=document.getElementById('scr'),k=s.scrollWidth/2000,[x,y]=P[n];s.scrollTo({left:Math.max(0,x*k-s.clientWidth/2),top:Math.max(0,y*k-s.clientHeight/2),behavior:'smooth'})}
+  const s=document.getElementById('scr'),k=s.scrollWidth/1930,[x,y]=P[n];s.scrollTo({left:Math.max(0,(x-40)*k-s.clientWidth/2),top:Math.max(0,(y-80)*k-s.clientHeight/2),behavior:'smooth'})}
  showGroups(byS[n]||[],n);render();
 }
 // chips
@@ -285,9 +286,9 @@ Object.keys(cnt).sort((a,b)=>a==='Ciência da Computação'?-1:b==='Ciência da 
  b.addEventListener('click',()=>{cursos.has(c)?cursos.delete(c):cursos.add(c);b.setAttribute('aria-pressed',cursos.has(c));render()});chips.appendChild(b)});
 document.getElementById('q').addEventListener('input',e=>{qs=norm(e.target.value.trim());render()});
 // zoom
-let w=1;const scr=document.getElementById('scr');
-function zoom(f){w=Math.min(3,Math.max(.6,w*f));svg.style.width=(w*Math.max(scr.clientWidth,900))+'px';svg.style.height='auto'}
-svg.style.width=Math.max(scr.clientWidth,900)+'px';
+let w=1;const scr=document.getElementById('scr');const BASE=()=>scr.clientWidth<700?1500:Math.max(scr.clientWidth,900);
+function zoom(f){w=Math.min(3,Math.max(.6,w*f));svg.style.width=(w*BASE())+'px';svg.style.height='auto'}
+svg.style.width=BASE()+'px';
 document.getElementById('zi').onclick=()=>{if(svg.style.width==='100%'){w=1;svg.style.width=Math.max(scr.clientWidth,720)+'px'}zoom(1.3)};
 document.getElementById('zo').onclick=()=>{if(svg.style.width==='100%'){w=1;svg.style.width=Math.max(scr.clientWidth,720)+'px'}zoom(1/1.3)};
 // ---- medição: eventos para GTM/GA4 via dataLayer (sem identificador configurado ainda) ----
