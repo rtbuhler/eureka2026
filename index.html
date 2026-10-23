@@ -40,6 +40,8 @@ h1{font-family:var(--display);font-weight:800;font-size:clamp(24px,4vw,34px);let
 .chip{font:inherit;font-size:13px;display:inline-flex;align-items:center;gap:7px;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);padding:5px 10px;border-radius:999px;cursor:pointer}
 .chip i{width:11px;height:11px;border-radius:3px;display:inline-block;background:var(--c,var(--muted))}
 .chip[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.chip .sg{font-size:11px;font-weight:700;letter-spacing:.06em;padding:1px 6px;border-radius:5px;background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.chip[aria-pressed="true"] .sg{background:color-mix(in srgb,var(--bg) 22%,transparent)}
 .chip small{color:inherit;opacity:.7;font-variant-numeric:tabular-nums}
 .grid{display:grid;grid-template-columns:minmax(0,1.9fr) minmax(320px,1fr);gap:14px;align-items:start}
 @media (max-width:980px){.grid{grid-template-columns:minmax(0,1fr)}}
@@ -273,7 +275,7 @@ const chips=document.getElementById('chips');
 const cnt={};D.forEach(g=>cnt[g[1]]=(cnt[g[1]]||0)+1);
 Object.keys(cnt).sort((a,b)=>a==='Ciência da Computação'?-1:b==='Ciência da Computação'?1:a==='Sistemas de Informação'?-1:b==='Sistemas de Informação'?1:a.localeCompare(b,'pt')).forEach(c=>{
  const b=document.createElement('button');b.type='button';b.className='chip';b.setAttribute('aria-pressed','false');
- b.innerHTML='<i></i><span></span><small></small>';b.querySelector('i').style.setProperty('--c',(COL[c]||['#777'])[0]);b.querySelector('span').textContent=c;b.querySelector('small').textContent=cnt[c];
+ b.dataset.c=c;b.innerHTML='<i></i><span></span><b class="sg"></b><small></small>';b.querySelector('i').style.setProperty('--c',(COL[c]||['#777'])[0]);b.querySelector('span').textContent=c;b.querySelector('.sg').textContent=(SHORT[c]||'').toUpperCase();b.querySelector('small').textContent=cnt[c];
  b.addEventListener('click',()=>{cursos.has(c)?cursos.delete(c):cursos.add(c);b.setAttribute('aria-pressed',cursos.has(c));render()});chips.appendChild(b)});
 document.getElementById('q').addEventListener('input',e=>{qs=norm(e.target.value.trim());render()});
 // zoom
@@ -311,7 +313,8 @@ function setView(v){view=v;const c=v!=='mapa'&&v!=='texto';
  document.querySelector('.wrap').classList.toggle('vc',v!=='mapa');
  document.querySelectorAll('#segView button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===v));
  try{localStorage.setItem('eureka-visao',v)}catch(e){}
- render()}
+ updateChips();render()}
+function updateChips(){const A=AREAS[view];[...chips.children].forEach(b=>{const c=b.dataset.c,ok=!A||A.c.includes(c);b.hidden=!ok;if(!ok&&cursos.has(c)){cursos.delete(c);b.setAttribute('aria-pressed','false')}})}
 ['Mapa',...Object.keys(AREAS),'Lista em texto'].forEach(n=>{const b=document.createElement('button');b.type='button';b.dataset.v=n==='Mapa'?'mapa':n==='Lista em texto'?'texto':n;b.textContent=n;b.setAttribute('aria-pressed',n==='Mapa');b.addEventListener('click',()=>setView(b.dataset.v));document.getElementById('segView').appendChild(b)});
 function renderCursos(L){
  const root=document.getElementById('vCursos');if(root.hidden)return;
